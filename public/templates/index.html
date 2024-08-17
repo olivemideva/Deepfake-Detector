@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Deepfake Detection</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .background-container {
+            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/static/banner.jpg');
+            background-size: cover; 
+            background-position: center;
+            background-repeat: no-repeat; 
+            height: 100vh; 
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+        .navbar {
+            background: rgba(0, 0, 0, 0.4); 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+        }
+        .navbar-brand {
+            font-family: 'Merriweather', serif;
+            font-size: 1.75rem;
+        }
+        .container {
+            max-width: 700px;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            margin-top: 1.5rem;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 2rem;
+        }
+        h1 {
+            font-family: 'Merriweather', serif;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        .lead {
+            color: #333;
+        }
+        .form-control {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .btn-primary {
+            background-color: #343a40;
+            border-color: rgba(255, 255, 255, 0.1);
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        footer {
+            padding: 1rem;
+            background-color: rgba(0, 0, 0, 0.4);
+            color: #ffffff;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        footer p {
+            margin: 0;
+            font-size: 0.875rem;
+        }
+        .result {
+            margin-top: 1rem;
+            font-size: 1.25rem;
+            color: #fff;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 1rem;
+            border-radius: 30px;
+            display: none; /* Hidden by default, will be shown on success */
+        }
+        #image-preview {
+            margin-top: 20px;
+            text-align: center;
+        }
+        #uploaded-image {
+            width: 300px; /* Set a fixed width */
+            height: 300px; /* Set a fixed height */
+            object-fit: cover; /* Ensure the image covers the specified area */
+            border-radius: 12px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-container">
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top">
+            <a class="navbar-brand" href="#">Deepfake Detection</a>
+        </nav>
+        <main role="main" class="container">
+            <div class="starter-template">
+                <h1>Deepfake Detection</h1>
+                <p class="lead">Upload a photo to check if it's real or fake.</p>
+                <form id="upload-form" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <input type="file" id="file" name="file" class="form-control" accept="image/*" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Predict</button>
+                </form>
+                <div id="image-preview">
+                    <img id="uploaded-image" src="" alt="Uploaded Image" />
+                </div>
+                <div id="result" class="result"></div>
+            </div>
+        </main>
+        <footer>
+            <p>&copy; 2024 Deepfake Detection</p>
+        </footer>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#upload-form').on('submit', function(event) {
+                event.preventDefault();
+                var formData = new FormData(this);
+                $.ajax({
+                    url: '/predict',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        // Display the uploaded image
+                        var fileInput = document.getElementById('file');
+                        var imagePreview = document.getElementById('uploaded-image');
+                        imagePreview.src = URL.createObjectURL(fileInput.files[0]);
+                        imagePreview.style.display = 'block';
+
+                        // Display the prediction result
+                        if (response.prediction) {
+                            $('#result').text('Prediction: ' + response.prediction).show();
+                        } else {
+                            $('#result').text('No prediction available').show();
+                        }
+                    },
+                    error: function() {
+                        $('#result').text('An error occurred. Please try again.').show();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
