@@ -48,14 +48,21 @@ def predict():
             prediction = make_prediction(file_path)
             return jsonify({'prediction': prediction})
         except Exception as e:
-            return jsonify({'error': str(e)}), 500
+            app.logger.error(f"Error during prediction: {e}")
+            return jsonify({'error': 'An error occurred during prediction'}), 500
     else:
         return jsonify({'error': 'Invalid file format'}), 400
 
 def make_prediction(file_path):
-    img = preprocess_image(file_path)
-    prediction = model.predict(img)
-    return "Fake" if prediction[0][1] > 0.5 else "Real"
+    try:
+        img = preprocess_image(file_path)
+        app.logger.info(f"Preprocessed image shape: {img.shape}")
+        prediction = model.predict(img)
+        app.logger.info(f"Model prediction: {prediction}")
+        return "Fake" if prediction[0][1] > 0.5 else "Real"
+    except Exception as e:
+        app.logger.error(f"Error during prediction: {e}")
+        raise
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
@@ -64,7 +71,8 @@ def uploaded_file(filename):
 def run_app():
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
-    app.run(host='0.0.0.0', port=8080, debug=True, use_reloader=False)
+    # Use port 10000 if that's what Render expects
+    app.run(host='0.0.0.0', port=10000, debug=True, use_reloader=False)
 
 if __name__ == '__main__':
     run_app()
