@@ -8,7 +8,7 @@ import tensorflow as tf
 import logging
 
 app = Flask(__name__, template_folder='public/templates', static_folder='static')
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "https://deepfake-detector-static.onrender.com"}})  # Updated CORS to allow frontend domain
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
