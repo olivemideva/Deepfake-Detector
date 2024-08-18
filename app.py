@@ -10,7 +10,12 @@ app = Flask(__name__, template_folder='public/templates', static_folder='static'
 CORS(app)
 
 # Load model
-model = tf.keras.models.load_model('model/cnn_deepfake_model.keras')
+try:
+    model = tf.keras.models.load_model('model/cnn_deepfake_model.keras')
+    app.logger.info("Model loaded successfully.")
+except Exception as e:
+    app.logger.error(f"Failed to load model: {e}")
+    raise
 
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -24,6 +29,7 @@ def preprocess_image(image_path):
     img = cv2.resize(img, image_size)
     img = np.array(img, dtype=np.float32) / 255.0
     img = np.expand_dims(img, axis=0)
+    app.logger.info(f"Preprocessed image shape: {img.shape}")
     return img
 
 def allowed_file(filename):
@@ -46,6 +52,7 @@ def predict():
         file.save(file_path)
         try:
             prediction = make_prediction(file_path)
+            app.logger.info(f"Prediction: {prediction}")
             return jsonify({'prediction': prediction})
         except Exception as e:
             app.logger.error(f"Error during prediction: {e}")
@@ -56,9 +63,8 @@ def predict():
 def make_prediction(file_path):
     try:
         img = preprocess_image(file_path)
-        app.logger.info(f"Preprocessed image shape: {img.shape}")
         prediction = model.predict(img)
-        app.logger.info(f"Model prediction: {prediction}")
+        app.logger.info(f"Model prediction array: {prediction}")
         return "Fake" if prediction[0][1] > 0.5 else "Real"
     except Exception as e:
         app.logger.error(f"Error during prediction: {e}")
