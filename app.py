@@ -6,11 +6,14 @@ import numpy as np
 import cv2
 from keras.models import load_model
 from threading import Thread
+import tensorflow as tf
+from tensorflow.keras.models import load_model
+
 
 app = Flask(__name__, template_folder='public/templates', static_folder='static')
 CORS(app)
 
-model = load_model('model/cnn_deepfake_model.keras')
+model = tf.keras.models.load_model('model/cnn_deepfake_model.keras')
 
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
