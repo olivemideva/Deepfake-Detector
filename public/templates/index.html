@@ -153,7 +153,8 @@
                             $('#result').text('No prediction available').show();
                         }
                     },
-                    error: function() {
+                    error: function(xhr, status, error) {
+                        console.error('Error details:', status, error);
                         $('#result').text('An error occurred. Please try again.').show();
                     }
                 });
