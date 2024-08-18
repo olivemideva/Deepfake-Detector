@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 # Load model
 try:
-    model = tf.keras.models.load_model('model/cnn_deepfake_model.keras')
+    model = tf.keras.models.load_model('model/cnn_deepfake_model.keras', compile=False)
     logger.info('Model loaded successfully.')
 except Exception as e:
     logger.error(f'Error loading model: {str(e)}')
@@ -27,12 +27,12 @@ app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg'}
 
 def preprocess_image(image_path):
     image_size = (64, 64)
-    img = cv2.imread(image_path)
+    img = cv2.imread(image_path, cv2.IMREAD_COLOR)  # Load image directly as color
     if img is None:
         raise ValueError("Image not found or invalid.")
-    img = cv2.resize(img, image_size)
-    img = np.array(img, dtype=np.float32) / 255.0
-    img = np.expand_dims(img, axis=0)
+    img = cv2.resize(img, image_size, interpolation=cv2.INTER_AREA)  # Use INTER_AREA for faster resizing
+    img = img.astype(np.float32) / 255.0  # Normalizing
+    img = np.expand_dims(img, axis=0)  # Add batch dimension
     return img
 
 def allowed_file(filename):
@@ -71,7 +71,7 @@ def make_prediction(file_path):
     try:
         img = preprocess_image(file_path)
         logger.info(f'Image shape after preprocessing: {img.shape}')
-        prediction = model.predict(img)
+        prediction = model.predict(img, verbose=0)  # Disable verbose to speed up prediction
         logger.info(f'Model prediction: {prediction}')
         return "Fake" if prediction[0][1] > 0.5 else "Real"
     except Exception as e:
@@ -87,7 +87,7 @@ def run_app():
         os.makedirs(app.config['UPLOAD_FOLDER'])
     # Get the port from the environment variable or default to 8080
     port = int(os.getenv("PORT", 8080))
-    app.run(host='0.0.0.0', port=port, debug=True, use_reloader=False)
+    app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)  # Disable debug mode
 
 if __name__ == '__main__':
     run_app()
