@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "10000:10000"
+    command: gunicorn -w 4 -b 0.0.0.0:10000 --timeout 120 app:app
+    volumes:
+      - .:/app
+    environment:
+      - PORT=10000
