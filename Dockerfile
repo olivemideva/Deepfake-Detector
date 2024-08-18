@@ -25,5 +25,5 @@ RUN mkdir -p /app/uploads
 # Expose the port on which the Flask app will run
 EXPOSE $PORT
 
-# Run the Flask application with Gunicorn and increased timeout
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:$PORT", "--timeout", "120"]
+# Run Gunicorn with a specified timeout
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8080", "--timeout", "120", "app:app"]
