@@ -4,15 +4,12 @@ from werkzeug.utils import secure_filename
 import os
 import numpy as np
 import cv2
-from keras.models import load_model
-from threading import Thread
 import tensorflow as tf
-from tensorflow.keras.models import load_model
-
 
 app = Flask(__name__, template_folder='public/templates', static_folder='static')
 CORS(app)
 
+# Load model
 model = tf.keras.models.load_model('model/cnn_deepfake_model.keras')
 
 UPLOAD_FOLDER = 'uploads'
@@ -22,9 +19,11 @@ app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg'}
 def preprocess_image(image_path):
     image_size = (64, 64)
     img = cv2.imread(image_path)
+    if img is None:
+        raise ValueError("Image not found or invalid.")
     img = cv2.resize(img, image_size)
     img = np.array(img, dtype=np.float32) / 255.0
-    img = np.expand_dims(img, axis=0)  
+    img = np.expand_dims(img, axis=0)
     return img
 
 def allowed_file(filename):
@@ -45,19 +44,18 @@ def predict():
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
-        prediction = make_prediction(file_path)
-        return jsonify({'prediction': prediction})
+        try:
+            prediction = make_prediction(file_path)
+            return jsonify({'prediction': prediction})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
     else:
         return jsonify({'error': 'Invalid file format'}), 400
 
 def make_prediction(file_path):
     img = preprocess_image(file_path)
     prediction = model.predict(img)
-
-    if prediction[0][1] > 0.5:
-        return "Fake"
-    else:
-        return "Real"
+    return "Fake" if prediction[0][1] > 0.5 else "Real"
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
@@ -69,5 +67,4 @@ def run_app():
     app.run(host='0.0.0.0', port=8080, debug=True, use_reloader=False)
 
 if __name__ == '__main__':
-    thread = Thread(target=run_app)
-    thread.start()
+    run_app()
