@@ -5,7 +5,8 @@ FROM python:3.9-slim
 ENV PYTHONUNBUFFERED=1 \
     FLASK_ENV=production \
     UPLOAD_FOLDER=uploads \
-    ALLOWED_EXTENSIONS="png,jpg,jpeg"
+    ALLOWED_EXTENSIONS="png,jpg,jpeg" \
+    PORT=10000
 
 # Set the working directory in the container
 WORKDIR /app
@@ -23,7 +24,7 @@ COPY . .
 RUN mkdir -p /app/uploads
 
 # Expose the port on which the Flask app will run
-EXPOSE $PORT
+EXPOSE 10000
 
 # Run the Flask application with Gunicorn
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:$PORT"]
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:10000"]
