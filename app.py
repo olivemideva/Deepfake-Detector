@@ -15,16 +15,13 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Load model
-model_path = 'model/cnn_deepfake_model.keras'
-if not os.path.exists(model_path):
-    logger.error(f'Model file not found: {model_path}')
-    raise FileNotFoundError(f'Model file not found: {model_path}')
-model = tf.keras.models.load_model(model_path)
-logger.info('Model loaded successfully.')
+try:
+    model = tf.keras.models.load_model('model/cnn_deepfake_model.keras')
+    logger.info('Model loaded successfully.')
+except Exception as e:
+    logger.error(f'Error loading model: {str(e)}')
 
 UPLOAD_FOLDER = 'uploads'
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg'}
 
@@ -58,29 +55,37 @@ def predict():
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
+        logger.info(f'File saved to {file_path}')
         try:
             prediction = make_prediction(file_path)
             logger.info(f'Prediction: {prediction}')
             return jsonify({'prediction': prediction})
         except Exception as e:
-            logger.error(f'Error during prediction: {e}')
-            return jsonify({'error': str(e)}), 500
+            logger.error(f'Error during prediction: {str(e)}')
+            return jsonify({'error': 'Internal server error'}), 500
     else:
         logger.error('Invalid file format')
         return jsonify({'error': 'Invalid file format'}), 400
 
 def make_prediction(file_path):
-    img = preprocess_image(file_path)
-    prediction = model.predict(img)
-    return "Fake" if prediction[0][1] > 0.5 else "Real"
+    try:
+        img = preprocess_image(file_path)
+        logger.info(f'Image shape after preprocessing: {img.shape}')
+        prediction = model.predict(img)
+        logger.info(f'Model prediction: {prediction}')
+        return "Fake" if prediction[0][1] > 0.5 else "Real"
+    except Exception as e:
+        logger.error(f'Error during image preprocessing or prediction: {str(e)}')
+        raise
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 def run_app():
-    port = int(os.environ.get('PORT', 8080))  # Use environment variable for port if available
-    app.run(host='0.0.0.0', port=port, debug=True, use_reloader=False)
+    if not os.path.exists(app.config['UPLOAD_FOLDER']):
+        os.makedirs(app.config['UPLOAD_FOLDER'])
+    app.run(host='0.0.0.0', port=8080, debug=True, use_reloader=False)
 
 if __name__ == '__main__':
     run_app()
