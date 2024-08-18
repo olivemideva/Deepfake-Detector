@@ -5,19 +5,26 @@ import os
 import numpy as np
 import cv2
 import tensorflow as tf
+import logging
 
 app = Flask(__name__, template_folder='public/templates', static_folder='static')
 CORS(app)
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Load model
-try:
-    model = tf.keras.models.load_model('model/cnn_deepfake_model.keras')
-    app.logger.info("Model loaded successfully.")
-except Exception as e:
-    app.logger.error(f"Failed to load model: {e}")
-    raise
+model_path = 'model/cnn_deepfake_model.keras'
+if not os.path.exists(model_path):
+    logger.error(f'Model file not found: {model_path}')
+    raise FileNotFoundError(f'Model file not found: {model_path}')
+model = tf.keras.models.load_model(model_path)
+logger.info('Model loaded successfully.')
 
 UPLOAD_FOLDER = 'uploads'
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg'}
 
@@ -29,7 +36,6 @@ def preprocess_image(image_path):
     img = cv2.resize(img, image_size)
     img = np.array(img, dtype=np.float32) / 255.0
     img = np.expand_dims(img, axis=0)
-    app.logger.info(f"Preprocessed image shape: {img.shape}")
     return img
 
 def allowed_file(filename):
@@ -42,9 +48,11 @@ def index():
 @app.route('/predict', methods=['POST'])
 def predict():
     if 'file' not in request.files:
+        logger.error('No file part in the request')
         return jsonify({'error': 'No file part'}), 400
     file = request.files['file']
     if file.filename == '':
+        logger.error('No selected file')
         return jsonify({'error': 'No selected file'}), 400
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
@@ -52,33 +60,27 @@ def predict():
         file.save(file_path)
         try:
             prediction = make_prediction(file_path)
-            app.logger.info(f"Prediction: {prediction}")
+            logger.info(f'Prediction: {prediction}')
             return jsonify({'prediction': prediction})
         except Exception as e:
-            app.logger.error(f"Error during prediction: {e}")
-            return jsonify({'error': 'An error occurred during prediction'}), 500
+            logger.error(f'Error during prediction: {e}')
+            return jsonify({'error': str(e)}), 500
     else:
+        logger.error('Invalid file format')
         return jsonify({'error': 'Invalid file format'}), 400
 
 def make_prediction(file_path):
-    try:
-        img = preprocess_image(file_path)
-        prediction = model.predict(img)
-        app.logger.info(f"Model prediction array: {prediction}")
-        return "Fake" if prediction[0][1] > 0.5 else "Real"
-    except Exception as e:
-        app.logger.error(f"Error during prediction: {e}")
-        raise
+    img = preprocess_image(file_path)
+    prediction = model.predict(img)
+    return "Fake" if prediction[0][1] > 0.5 else "Real"
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 def run_app():
-    if not os.path.exists(app.config['UPLOAD_FOLDER']):
-        os.makedirs(app.config['UPLOAD_FOLDER'])
-    # Use port 10000 if that's what Render expects
-    app.run(host='0.0.0.0', port=10000, debug=True, use_reloader=False)
+    port = int(os.environ.get('PORT', 8080))  # Use environment variable for port if available
+    app.run(host='0.0.0.0', port=port, debug=True, use_reloader=False)
 
 if __name__ == '__main__':
     run_app()
