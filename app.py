@@ -89,5 +89,19 @@ def run_app():
     port = int(os.getenv("PORT", 8080))
     app.run(host='0.0.0.0', port=port, debug=True, use_reloader=False)
 
+# Netlify function handler
+def handler(event, context):
+    with app.test_request_context(
+        event['body'],
+        method=event['httpMethod'],
+        headers=event['headers']
+    ):
+        response = app.full_dispatch_request()
+        return {
+            'statusCode': response.status_code,
+            'body': response.get_data(as_text=True),
+            'headers': dict(response.headers)
+        }
+
 if __name__ == '__main__':
     run_app()
