@@ -134,19 +134,17 @@
                 event.preventDefault();
                 var formData = new FormData(this);
                 $.ajax({
-                    url: '/predict',
+                    url: 'https://deepfake-detector-app.onrender.com/predict',  // Explicit URL to the backend
                     type: 'POST',
                     data: formData,
                     contentType: false,
                     processData: false,
                     success: function(response) {
-                        // Display the uploaded image
                         var fileInput = document.getElementById('file');
                         var imagePreview = document.getElementById('uploaded-image');
                         imagePreview.src = URL.createObjectURL(fileInput.files[0]);
                         imagePreview.style.display = 'block';
 
-                        // Display the prediction result
                         if (response.prediction) {
                             $('#result').text('Prediction: ' + response.prediction).show();
                         } else {
