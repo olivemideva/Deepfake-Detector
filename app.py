@@ -22,7 +22,7 @@ def preprocess_image(image_path):
     try:
         img = Image.open(image_path)
         img = img.convert('RGB')  # Ensure the image is in RGB format
-        img = img.resize(image_size, Image.ANTIALIAS)  # Resize with antialiasing for better quality
+        img = img.resize(image_size, Image.LANCZOS)  # Resize with antialiasing for better quality
         img = np.array(img, dtype=np.float32) / 255.0  # Normalize the image
         img = np.expand_dims(img, axis=0)  # Add batch dimension
         logging.debug(f"Image processed successfully: {image_path}")
