@@ -36,7 +36,46 @@ The data analysis phase focused on understanding the CIFAKE dataset, which conta
 
 In the data cleaning phase, we aimed to ensure the quality and integrity of our image dataset by addressing several key issues. We began by removing duplicate images using hashing techniques, which allowed us to identify and drop identical images effectively. Next, we checked for any missing labels and eliminated rows with incomplete data to maintain the dataset's consistency. We also verified the integrity of each image to detect and remove any corrupted files that could potentially disrupt the model's training process. This meticulous cleaning process helped us create a reliable and accurate dataset, ready for model development. The cleaned data is now stored in dataframes, ensuring a structured and organized format for further analysis and modeling.
 
-### Visualizations
+## Visualizations
+a) Distribution of image sizes
+
+![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/Distribution%20of%20image%20sizes.png).
+
+b) Class distribution
+![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/Class%20distribution.png).
+
+c) Average Pixel Intensity Distribution
+![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/pixel%20intensity%20distribution.png).
+
+d) Aspect ratio Distribution
+![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/Aspect%20ratio%20distribution.png).
+
+e) Sample Images
+![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/sample%20images.png).
+
+## Modeliing 
+- Convolutional Neural Networks (CNNs): Employed to automatically extract features and classify images based on learned patterns. Transfer learning was considered, utilizing pre-trained models like ResNet and VGG16 to enhance accuracy.
+- Ensemble Methods: Combined multiple CNN models to improve robustness and overall classification performance.
+- Custom Architectures: Designed a tailored CNN architecture to handle the unique properties of the CIFAKE dataset, such as its small image size and the subtle differences between real and synthetic classes.
+
+## Evaluation
+- Accuracy: The model achieved an overall accuracy of 94% in classifying real and AI-generated images.
+- Precision and Recall: Both were high, leading to an F1-score of 94% for both classes.
+- F1 Score: A slight bias was observed towards predicting AI-generated images with higher recall (97%) compared to real images (91%).
+Robustness Testing: Extensive testing was conducted on a separate test set to ensure the models generalized well across different data subsets and potential variations in AI-generated images.
+
+## Deployment
+The front end of the application is built using Flask, a lightweight web framework for Python. 
+This Flask app serves as the interface where users can upload images to determine whether they are real or deepfake. 
+The app loads a pre-trained CNN model and processes incoming images by resizing and normalizing them before passing them through the model. The results, indicating whether the image is "Real" or "Fake," are returned to the user in JSON format. 
+The app handles file uploads, ensures only valid image formats are accepted, and can serve the uploaded files back to the user.
+
+## Recommendations
+- Model Fine-Tuning: Regular fine-tuning and updates to the model are recommended to maintain accuracy as AI-generation techniques evolve.
+- Augment Data Sources: Incorporating additional datasets, particularly those representing newer AI-generated techniques, can enhance model robustness.
+- User Interface Development: A focus on a user-friendly deployment is critical, allowing non-experts to easily verify image authenticity.
+- Continuous Monitoring: Implement a feedback loop for real-world performance monitoring and incremental improvements to the detection system
+
 
 
 
