@@ -8,3 +8,4 @@ keras
 opencv-python-headless
 requests
 flask-cors
+wfastcgi
