@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify, send_from_directory
 import os
 from werkzeug.utils import secure_filename
 import numpy as np
-import cv2
+from PIL import Image
 from keras.models import load_model
 
 # Initialize Flask app
@@ -11,11 +11,11 @@ app = Flask(__name__, template_folder='public/templates', static_folder='static'
 # Load the model
 model = load_model('model/cnn_deepfake_model.keras')
 
-# Function to preprocess the image
+# Function to preprocess the image using PIL
 def preprocess_image(image_path):
     image_size = (64, 64)
-    img = cv2.imread(image_path)
-    img = cv2.resize(img, image_size)
+    img = Image.open(image_path)
+    img = img.resize(image_size)
     img = np.array(img, dtype=np.float32) / 255.0
     img = np.expand_dims(img, axis=0)
     return img
@@ -66,4 +66,3 @@ def run_app():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000, debug=True, use_reloader=False)
-
