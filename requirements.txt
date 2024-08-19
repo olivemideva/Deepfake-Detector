@@ -7,3 +7,4 @@ gunicorn
 keras
 opencv-python-headless
 requests
+flask-cors
