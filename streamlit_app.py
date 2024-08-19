@@ -24,6 +24,7 @@ def preprocess_image(image):
 def make_prediction(image):
     img = preprocess_image(image)
     prediction = model.predict(img)
+    st.write(f'Raw prediction data: {prediction}')  # Debugging info
     if prediction[0][1] > 0.5:
         return "Fake"
     else:
