@@ -11,7 +11,7 @@ import logging
 app = Flask(__name__, template_folder='public/templates', static_folder='static')
 
 # Enable CORS
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})  # Allow all origins
 
 # Initialize model as None and load it lazily
 model = None
@@ -87,6 +87,10 @@ def make_prediction(file_path):
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(app.config['STATIC_FOLDER'], 'favicon.ico')
+
 if __name__ == '__main__':
     # Setup logging
     logging.basicConfig(level=logging.DEBUG)
@@ -96,4 +100,4 @@ if __name__ == '__main__':
         os.makedirs(app.config['UPLOAD_FOLDER'])
     
     # Run Flask app directly
-    app.run()
+    app.run(debug=True, host='0.0.0.0', port=8080)
