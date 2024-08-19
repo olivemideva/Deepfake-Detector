@@ -6,6 +6,7 @@ import numpy as np
 import cv2
 from keras.models import load_model
 import logging
+from flask import Response
 
 # Initialize Flask app
 app = Flask(__name__, template_folder='public/templates', static_folder='static')
@@ -13,15 +14,8 @@ app = Flask(__name__, template_folder='public/templates', static_folder='static'
 # Enable CORS
 CORS(app)
 
-# Initialize model as None and load it lazily
-model = None
-
-def load_prediction_model():
-    global model
-    if model is None:
-        app.logger.info("Loading deepfake detection model...")
-        model = load_model('model/cnn_deepfake_model.keras')
-    return model
+# Initialize model
+model = load_model('model/cnn_deepfake_model.keras')
 
 # Function to preprocess the image using OpenCV
 def preprocess_image(image_path):
@@ -29,7 +23,7 @@ def preprocess_image(image_path):
     img = cv2.imread(image_path)
     img = cv2.resize(img, image_size)
     img = np.array(img, dtype=np.float32) / 255.0
-    img = np.expand_dims(img, axis=0)  
+    img = np.expand_dims(img, axis=0)
     return img
 
 @app.route('/')
@@ -56,11 +50,6 @@ def predict():
             filename = secure_filename(file.filename)
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(file_path)
-            
-            # Log the file path
-            app.logger.info(f"File saved at {file_path}")
-            
-            # Make prediction
             prediction = make_prediction(file_path)
             return jsonify({'prediction': prediction})
         else:
@@ -70,30 +59,25 @@ def predict():
         return jsonify({'error': 'Internal server error'}), 500
 
 def make_prediction(file_path):
-    # Load model lazily
-    model = load_prediction_model()
-    
-    # Preprocess the image and make a prediction
     img = preprocess_image(file_path)
     prediction = model.predict(img)
-    app.logger.info(f"Prediction result: {prediction}")
-    
-    if prediction[0][1] > 0.5:
-        return "Fake"
-    else:
-        return "Real"
+    return "Fake" if prediction[0][1] > 0.5 else "Real"
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-if __name__ == '__main__':
-    # Setup logging
-    logging.basicConfig(level=logging.DEBUG)
+# Vercel uses `serverless` or `lambda` handler by default
+def handler(event, context):
+    from werkzeug.wrappers import Response
+    from werkzeug.serving import run_simple
+    with app.request_context(event):
+        response = app.full_dispatch_request()
+    return Response(
+        response.response,
+        status=response.status_code,
+        headers=dict(response.headers)
+    )
 
-    # Ensure upload directory exists
-    if not os.path.exists(app.config['UPLOAD_FOLDER']):
-        os.makedirs(app.config['UPLOAD_FOLDER'])
-    
-    # Run Flask app directly
+if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000, debug=True)
