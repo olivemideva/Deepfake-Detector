@@ -5,7 +5,7 @@ import cv2
 from keras.models import load_model
 
 # Load the model once at startup
-model = load_model('model/cnn_deepfake_model.keras')
+model = load_model('model/cnn_model.h5')
 
 def preprocess_image(image):
     image_size = (64, 64)  # Ensure consistency with your model's expected input size
