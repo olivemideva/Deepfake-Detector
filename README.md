@@ -39,23 +39,23 @@ In the data cleaning phase, we aimed to ensure the quality and integrity of our 
 ## Visualizations
 a) Distribution of image sizes
 
-![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/Distribution%20of%20image%20sizes.png).
+![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/Distribution%20of%20image%20sizes.png)
 
 b) Class distribution
 
-![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/Class%20distribution.png).
+![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/Class%20distribution.png)
 
 c) Average Pixel Intensity Distribution
 
-![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/pixel%20intensity%20distribution.png).
+![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/pixel%20intensity%20distribution.png)
 
 d) Aspect ratio Distribution
 
-![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/Aspect%20ratio%20distribution.png).
+![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/Aspect%20ratio%20distribution.png)
 
 e) Sample Images
 
-![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/sample%20images.png).
+![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/sample%20images.png)
 
 ## Modeliing 
 - Convolutional Neural Networks (CNNs): Employed to automatically extract features and classify images based on learned patterns. Transfer learning was considered, utilizing pre-trained models like ResNet and VGG16 to enhance accuracy.
@@ -75,9 +75,9 @@ This Flask app serves as the interface where users can upload images to determin
 The app loads a pre-trained CNN model and processes incoming images by resizing and normalizing them before passing them through the model. The results, indicating whether the image is "Real" or "Fake," are returned to the user in JSON format. 
 The app handles file uploads, ensures only valid image formats are accepted, and can serve the uploaded files back to the user.
 
-![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/deployment1.jpg).
+![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/deployment1.jpg)
 
-![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/deployment2.jpg).
+![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/deployment2.jpg)
 
 
 ## Recommendations
