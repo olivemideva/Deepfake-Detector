@@ -13,8 +13,15 @@ app = Flask(__name__, template_folder='public/templates', static_folder='static'
 # Enable CORS
 CORS(app)
 
-# Load the model
-model = load_model('model/cnn_deepfake_model.keras')
+# Initialize model as None and load it lazily
+model = None
+
+def load_prediction_model():
+    global model
+    if model is None:
+        app.logger.info("Loading deepfake detection model...")
+        model = load_model('model/cnn_deepfake_model.keras')
+    return model
 
 # Function to preprocess the image using OpenCV
 def preprocess_image(image_path):
@@ -49,6 +56,11 @@ def predict():
             filename = secure_filename(file.filename)
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(file_path)
+            
+            # Log the file path
+            app.logger.info(f"File saved at {file_path}")
+            
+            # Make prediction
             prediction = make_prediction(file_path)
             return jsonify({'prediction': prediction})
         else:
@@ -58,8 +70,14 @@ def predict():
         return jsonify({'error': 'Internal server error'}), 500
 
 def make_prediction(file_path):
+    # Load model lazily
+    model = load_prediction_model()
+    
+    # Preprocess the image and make a prediction
     img = preprocess_image(file_path)
     prediction = model.predict(img)
+    app.logger.info(f"Prediction result: {prediction}")
+    
     if prediction[0][1] > 0.5:
         return "Fake"
     else:
@@ -71,7 +89,7 @@ def uploaded_file(filename):
 
 if __name__ == '__main__':
     # Setup logging
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
 
     # Ensure upload directory exists
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
