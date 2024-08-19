@@ -12,10 +12,19 @@ image_size = (64, 64)
 
 # Function to preprocess the uploaded image
 def preprocess_image(image):
-    img = cv2.resize(np.array(image), image_size)
-    img = np.array(img, dtype=np.float32) / 255.0
-    img = np.expand_dims(img, axis=0)
-    return img
+    # Convert to numpy array
+    img_array = np.array(image)
+    
+    # Resize the image
+    img_resized = cv2.resize(img_array, image_size)
+    
+    # Normalize pixel values to the range 0-1
+    img_normalized = img_resized.astype(np.float32) / 255.0
+    
+    # Add a batch dimension
+    img_batch = np.expand_dims(img_normalized, axis=0)
+    
+    return img_batch
 
 # Streamlit app
 st.title("Deepfake Detection")
@@ -26,10 +35,10 @@ uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png
 
 if uploaded_file is not None:
     # Load the image
-    image = Image.open(uploaded_file)
+    image = Image.open(uploaded_file).convert('RGB')
 
     # Display the uploaded image in a small, consistent size
-    st.image(image, caption='Uploaded Image', use_column_width=True, width=200)
+    st.image(image, caption='Uploaded Image', width=200)
 
     # Preprocess the image
     img = preprocess_image(image)
