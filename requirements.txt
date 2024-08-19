@@ -5,3 +5,5 @@ Pillow
 tensorflow
 gunicorn
 keras
+opencv-python-headless
+requests
