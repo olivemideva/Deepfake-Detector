@@ -64,7 +64,7 @@ def uploaded_file(filename):
 def run_app():
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
-    app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)
+    app.run(host='0.0.0.0', port=10000, debug=True, use_reloader=False)
 
 # Run Flask app in a separate thread
 if __name__ == '__main__':
