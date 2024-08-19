@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask_cors import CORS  # Import CORS
 import os
 from werkzeug.utils import secure_filename
 import numpy as np
@@ -8,6 +9,9 @@ from threading import Thread
 
 # Initialize Flask app
 app = Flask(__name__, template_folder='public/templates', static_folder='static')
+
+# Enable CORS
+CORS(app)
 
 # Load the model
 model = load_model('model/cnn_deepfake_model.keras')
