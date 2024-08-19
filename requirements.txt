@@ -1,8 +1,6 @@
-streamlit
 Flask
-werkzeug
+Werkzeug
 numpy
-opencv-python
-tensorflow
 Pillow
-keras
+tensorflow
+gunicorn
