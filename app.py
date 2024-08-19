@@ -1,11 +1,11 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory
-from flask_cors import CORS  # Import CORS
+from flask_cors import CORS
 import os
 from werkzeug.utils import secure_filename
 import numpy as np
 import cv2
 from keras.models import load_model
-from threading import Thread
+import logging
 
 # Initialize Flask app
 app = Flask(__name__, template_folder='public/templates', static_folder='static')
@@ -39,19 +39,23 @@ def allowed_file(filename):
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
-        prediction = make_prediction(file_path)
-        return jsonify({'prediction': prediction})
-    else:
-        return jsonify({'error': 'Invalid file format'}), 400
+    try:
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file part'}), 400
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'error': 'No selected file'}), 400
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
+            prediction = make_prediction(file_path)
+            return jsonify({'prediction': prediction})
+        else:
+            return jsonify({'error': 'Invalid file format'}), 400
+    except Exception as e:
+        app.logger.error(f'Error occurred in /predict route: {e}')
+        return jsonify({'error': 'Internal server error'}), 500
 
 def make_prediction(file_path):
     img = preprocess_image(file_path)
@@ -65,12 +69,13 @@ def make_prediction(file_path):
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-def run_app():
+if __name__ == '__main__':
+    # Setup logging
+    logging.basicConfig(level=logging.INFO)
+
+    # Ensure upload directory exists
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
-    app.run(host='0.0.0.0', port=10000, debug=True, use_reloader=False)
-
-# Run Flask app in a separate thread
-if __name__ == '__main__':
-    thread = Thread(target=run_app)
-    thread.start()
+    
+    # Run Flask app directly
+    app.run(host='0.0.0.0', port=10000, debug=True)
