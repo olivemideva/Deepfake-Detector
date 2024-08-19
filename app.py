@@ -98,6 +98,4 @@ def run_app():
     app.run(debug=True, use_reloader=False, threaded=True)
 
 if __name__ == '__main__':
-    # Running the app with Gunicorn is recommended for production
-    # Use `gunicorn -w 4 -b 0.0.0.0:10000 app:app` for deployment
-    app.run(host='0.0.0.0', port=10000, debug=True, use_reloader=False, threaded=True)
+    app.run()
