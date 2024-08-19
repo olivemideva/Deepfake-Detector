@@ -11,14 +11,19 @@ app = Flask(__name__, template_folder='public/templates', static_folder='static'
 # Load the model
 model = load_model('model/cnn_deepfake_model.keras')
 
-# Function to preprocess the image using PIL
+# Function to preprocess the image using PIL with added optimization
 def preprocess_image(image_path):
-    image_size = (64, 64)
-    img = Image.open(image_path)
-    img = img.resize(image_size)
-    img = np.array(img, dtype=np.float32) / 255.0
-    img = np.expand_dims(img, axis=0)
-    return img
+    image_size = (64, 64)  # Resize images to the size expected by your model
+    try:
+        img = Image.open(image_path)
+        img = img.convert('RGB')  # Ensure the image is in RGB format
+        img = img.resize(image_size, Image.ANTIALIAS)  # Resize with antialiasing for better quality
+        img = np.array(img, dtype=np.float32) / 255.0  # Normalize the image
+        img = np.expand_dims(img, axis=0)  # Add batch dimension
+        return img
+    except Exception as e:
+        print(f"Error processing image: {e}")
+        return None
 
 # Define allowed extensions
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -41,14 +46,25 @@ def predict():
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        
+        # Save file temporarily for processing
         file.save(file_path)
-        prediction = make_prediction(file_path)
+        
+        # Process the image and make a prediction
+        img = preprocess_image(file_path)
+        if img is None:
+            return jsonify({'error': 'Error processing image'}), 500
+        
+        prediction = make_prediction(img)
+        
+        # Optionally remove the uploaded file after processing to save space
+        os.remove(file_path)
+        
         return jsonify({'prediction': prediction})
     else:
         return jsonify({'error': 'Invalid file format'}), 400
 
-def make_prediction(file_path):
-    img = preprocess_image(file_path)
+def make_prediction(img):
     prediction = model.predict(img)
     if prediction[0][1] > 0.5:
         return "Fake"
