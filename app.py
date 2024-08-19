@@ -25,12 +25,15 @@ if uploaded_file is not None:
     image = Image.open(uploaded_file)
     st.image(image, caption='Uploaded Image', use_column_width=True)
 
-    # Preprocess and make prediction
-    img = preprocess_image(image)
-    prediction = model.predict(img)
-    
-    # Display result
-    if prediction[0][1] > 0.5:
-        st.write('Prediction: Fake')
-    else:
-        st.write('Prediction: Real')
+    try:
+        # Preprocess and make prediction
+        img = preprocess_image(image)
+        prediction = model.predict(img)
+        
+        # Display result
+        if prediction[0][1] > 0.5:
+            st.write('Prediction: Fake')
+        else:
+            st.write('Prediction: Real')
+    except Exception as e:
+        st.write(f"Error occurred: {e}")
