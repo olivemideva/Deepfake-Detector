@@ -1,8 +1,7 @@
+streamlit
 Flask
-numpy
-opencv-python-headless
-tensorflow
-keras
 werkzeug
-gunicorn
-flask-cors
+numpy
+opencv-python
+tensorflow
+Pillow
