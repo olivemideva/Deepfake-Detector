@@ -42,15 +42,19 @@ a) Distribution of image sizes
 ![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/Distribution%20of%20image%20sizes.png).
 
 b) Class distribution
+
 ![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/Class%20distribution.png).
 
 c) Average Pixel Intensity Distribution
+
 ![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/pixel%20intensity%20distribution.png).
 
 d) Aspect ratio Distribution
+
 ![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/Aspect%20ratio%20distribution.png).
 
 e) Sample Images
+
 ![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/sample%20images.png).
 
 ## Modeliing 
