@@ -11,6 +11,7 @@ def preprocess_image(image):
     """Preprocess the uploaded image to the format required by the model."""
     image_size = (64, 64)  # Ensure this matches the input size of your model
     img = Image.open(image)
+    img = img.convert('RGB')  # Convert to RGB to ensure compatibility
     img = img.resize(image_size)
     img = np.array(img, dtype=np.float32) / 255.0
     img = np.expand_dims(img, axis=0)  # Add batch dimension
@@ -25,7 +26,7 @@ def predict_image(img):
 
 def display_image_with_prediction(image, prediction_label, prediction_prob):
     """Display an image with its prediction and confidence."""
-    st.image(image, caption=f'Prediction: {prediction_label} (Confidence: {prediction_prob:.2f})', use_column_width=True)
+    st.image(image, caption=f'Prediction: {prediction_label} (Confidence: {prediction_prob:.2f})', use_column_width='auto')
 
 def main():
     st.title("Deepfake Detection")
@@ -44,8 +45,7 @@ def main():
         for uploaded_file in uploaded_files:
             # Display the uploaded image
             img = Image.open(uploaded_file)
-            st.image(img, caption='Uploaded Image', use_column_width=True)
-
+            
             # Preprocess the uploaded image
             processed_img = preprocess_image(uploaded_file)
             
