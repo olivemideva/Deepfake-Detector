@@ -1,6 +1,7 @@
 FROM python:3.8
 
-COPY cnn_deepfake_model.keras /home/app/model/cnn_deepfake_model.keras
+# Copy the model file from the model directory in your project to the desired location in the container
+COPY model/cnn_deepfake_model.keras /home/app/model/cnn_deepfake_model.keras
 
 WORKDIR /app
 
