@@ -73,31 +73,21 @@ def make_prediction(file_path):
     # Load model lazily
     model = load_prediction_model()
     
-    # Preprocess the image and make a prediction
+    # Preprocess image
     img = preprocess_image(file_path)
-    prediction = model.predict(img)
-    app.logger.info(f"Prediction result: {prediction}")
     
-    if prediction[0][1] > 0.5:
-        return "Fake"
+    # Make prediction
+    prediction = model.predict(img)
+    if prediction[0] > 0.5:
+        return 'Fake'
     else:
-        return "Real"
+        return 'Real'
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-@app.route('/favicon.ico')
-def favicon():
-    return send_from_directory(app.config['STATIC_FOLDER'], 'favicon.ico')
-
 if __name__ == '__main__':
-    # Setup logging
-    logging.basicConfig(level=logging.DEBUG)
-
-    # Ensure upload directory exists
-    if not os.path.exists(app.config['UPLOAD_FOLDER']):
-        os.makedirs(app.config['UPLOAD_FOLDER'])
-    
-    # Run Flask app directly
-    app.run(debug=True, host='0.0.0.0', port=8080)
+    # Set up logging
+    logging.basicConfig(level=logging.INFO)
+    app.run(host='0.0.0.0', port=8080, debug=True)
