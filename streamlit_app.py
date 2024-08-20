@@ -1,64 +1,43 @@
 import streamlit as st
 import numpy as np
 import cv2
-from tensorflow.keras.models import load_model
+from keras.models import load_model
 from PIL import Image
 
-# Load the trained model
-try:
-    model = load_model('model/cnn_deepfake_model.keras')
-    st.write("Model loaded successfully.")
-except Exception as e:
-    st.write("Error loading model:", str(e))
+# Load the model
+model = load_model('model/cnn_deepfake_model.keras')
 
-# Set the image size to match the preprocessing step
-image_size = (64, 64)
-
-# Function to preprocess the uploaded image
+# Function to preprocess the image
 def preprocess_image(image):
-    # Convert to numpy array
-    img_array = np.array(image)
-    
-    # Resize the image to 64x64
-    img_resized = cv2.resize(img_array, image_size)
-    
-    # Normalize pixel values to the range 0-1
-    img_normalized = img_resized.astype(np.float32) / 255.0
-    
-    # Ensure image has 3 channels (RGB)
-    if img_normalized.ndim == 2:
-        img_normalized = np.stack([img_normalized] * 3, axis=-1)
-    
-    # Add a batch dimension
-    img_batch = np.expand_dims(img_normalized, axis=0)
-    
-    return img_batch
+    image_size = (64, 64)
+    img = image.resize(image_size)  # Resize to match the model's expected input
+    img = np.array(img, dtype=np.float32) / 255.0  # Normalize to 0-1
+    img = np.expand_dims(img, axis=0)  # Add batch dimension
+    return img
 
 # Streamlit app
 st.title("Deepfake Detection")
-st.write("Upload an image to see if it's real or fake.")
+st.write("Upload an image to predict whether it is real or fake.")
 
-# File uploader
 uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
-    # Load the image
-    image = Image.open(uploaded_file).convert('RGB')
+    # Display the uploaded image in a smaller, consistent size
+    st.image(uploaded_file, caption="Uploaded Image", use_column_width=True, width=150)
 
-    # Display the uploaded image in a small, consistent size
-    st.image(image, caption='Uploaded Image', width=200)
+    # Convert the file to an image
+    image = Image.open(uploaded_file)
 
     # Preprocess the image
-    img = preprocess_image(image)
+    preprocessed_image = preprocess_image(image)
 
-    # Make a prediction
-    prediction = model.predict(img)
-    
-    # Print raw prediction for debugging
-    st.write("Raw Prediction:", prediction)
+    # Predict
+    prediction = model.predict(preprocessed_image)
+    predicted_label = np.argmax(prediction, axis=1)[0]
 
-    # Determine if the image is real or fake
-    if prediction[0][1] > 0.5:
-        st.write("Prediction: Fake")
-    else:
-        st.write("Prediction: Real")
+    # Map prediction to label
+    label_mapping = {0: 'REAL', 1: 'FAKE'}
+    result = label_mapping[predicted_label]
+
+    # Display the prediction
+    st.write(f"Prediction: **{result}**")
