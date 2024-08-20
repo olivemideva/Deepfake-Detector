@@ -4,7 +4,13 @@ import pandas as pd
 from PIL import Image
 import tensorflow as tf
 from tensorflow.keras.models import load_model
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+
+# Try to import scikit-learn; handle import error
+try:
+    from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+    sklearn_available = True
+except ImportError:
+    sklearn_available = False
 
 # Load the trained CNN model
 model = load_model('model/cnn_deepfake_model.keras')
@@ -29,6 +35,7 @@ def predict_image(img):
 
 def evaluate_model():
     """Evaluate the model on a test dataset."""
+    import os  # Import os locally to avoid global issues
     # Load test data
     real_test_path = 'dataset/test/REAL'
     fake_test_path = 'dataset/test/FAKE'
@@ -64,10 +71,13 @@ def evaluate_model():
     # Calculate accuracy
     accuracy = np.mean(y_pred_classes == y_true)
 
-    # Confusion matrix
-    cm = confusion_matrix(y_true, y_pred_classes)
-
-    return accuracy, cm
+    if sklearn_available:
+        # Confusion matrix
+        cm = confusion_matrix(y_true, y_pred_classes)
+        return accuracy, cm
+    else:
+        st.warning("scikit-learn is not available. Confusion Matrix cannot be displayed.")
+        return accuracy, None
 
 def main():
     st.title("Deepfake Detection")
@@ -97,10 +107,11 @@ def main():
         accuracy, cm = evaluate_model()
         st.write(f"Model Accuracy: **{accuracy:.2f}**")
         
-        # Display Confusion Matrix
-        cm_display = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['REAL', 'FAKE'])
-        st.write("Confusion Matrix:")
-        st.pyplot(cm_display.plot(include_values=True, cmap='Blues').figure)
+        if cm is not None:
+            # Display Confusion Matrix
+            cm_display = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['REAL', 'FAKE'])
+            st.write("Confusion Matrix:")
+            st.pyplot(cm_display.plot(include_values=True, cmap='Blues').figure)
 
 if __name__ == "__main__":
     main()
