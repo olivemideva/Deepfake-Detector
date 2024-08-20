@@ -3,14 +3,13 @@ import numpy as np
 from PIL import Image
 import tensorflow as tf
 from tensorflow.keras.models import load_model
-from io import BytesIO
 
 # Load the trained CNN model
 model = load_model('model/cnn_deepfake_model.keras')
 
 def preprocess_image(image):
     """Preprocess the uploaded image to the format required by the model."""
-    image_size = (64, 64)
+    image_size = (64, 64)  # Ensure this matches the input size of your model
     img = Image.open(image)
     img = img.resize(image_size)
     img = np.array(img, dtype=np.float32) / 255.0
@@ -30,7 +29,7 @@ def display_image_with_prediction(image, prediction_label, prediction_prob):
 
 def main():
     st.title("Deepfake Detection")
-    st.write("Upload an image to check if it's REAL or FAKE.")
+    st.write("Upload images to check if they are REAL or FAKE.")
 
     # Image upload
     uploaded_files = st.file_uploader("Choose images...", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
@@ -38,6 +37,9 @@ def main():
     if uploaded_files:
         st.write("Uploaded Images and Predictions:")
         
+        # Store results for display
+        results = []
+
         # Iterate over uploaded files
         for uploaded_file in uploaded_files:
             # Display the uploaded image
@@ -50,12 +52,12 @@ def main():
             # Make prediction
             prediction_label, prediction_prob = predict_image(processed_img)
             
-            # Display the prediction
-            st.write(f"Prediction: **{prediction_label}**")
-            st.write(f"Prediction Confidence: {prediction_prob[np.argmax(prediction_prob)]:.2f}")
+            # Store results
+            results.append((img, prediction_label, prediction_prob[np.argmax(prediction_prob)]))
 
-            # Display image with prediction
-            display_image_with_prediction(img, prediction_label, prediction_prob[np.argmax(prediction_prob)])
+        # Display all results
+        for img, label, prob in results:
+            display_image_with_prediction(img, label, prob)
 
 if __name__ == "__main__":
     main()
