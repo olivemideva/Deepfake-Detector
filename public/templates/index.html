@@ -85,16 +85,14 @@
             background-color: rgba(0, 0, 0, 0.6);
             padding: 1rem;
             border-radius: 30px;
-            display: none; /* Hidden by default, will be shown on success */
+            display: none; 
         }
         #image-preview {
             margin-top: 20px;
             text-align: center;
         }
         #uploaded-image {
-            width: 300px; /* Set a fixed width */
-            height: 300px; /* Set a fixed height */
-            object-fit: cover; /* Ensure the image covers the specified area */
+            max-width: 100%;
             border-radius: 12px;
             display: none;
         }
@@ -134,25 +132,22 @@
                 event.preventDefault();
                 var formData = new FormData(this);
                 $.ajax({
-                    url: 'https://deepfake-detector-app.onrender.com/predict',  // Explicit URL to the backend
+                    url: '/predict',
                     type: 'POST',
                     data: formData,
                     contentType: false,
                     processData: false,
                     success: function(response) {
+                        // Display the uploaded image
                         var fileInput = document.getElementById('file');
                         var imagePreview = document.getElementById('uploaded-image');
                         imagePreview.src = URL.createObjectURL(fileInput.files[0]);
                         imagePreview.style.display = 'block';
 
-                        if (response.prediction) {
-                            $('#result').text('Prediction: ' + response.prediction).show();
-                        } else {
-                            $('#result').text('No prediction available').show();
-                        }
+                        // Display the prediction result
+                        $('#result').text('Prediction: ' + response.prediction).show();
                     },
-                    error: function(xhr, status, error) {
-                        console.error('Error details:', status, error);
+                    error: function() {
                         $('#result').text('An error occurred. Please try again.').show();
                     }
                 });
