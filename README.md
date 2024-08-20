@@ -73,7 +73,7 @@ Robustness Testing: Extensive testing was conducted on a separate test set to en
 The front end of the application is built using Flask, a lightweight web framework for Python. 
 This Flask app serves as the interface where users can upload images to determine whether they are real or deepfake. 
 The app loads a pre-trained CNN model and processes incoming images by resizing and normalizing them before passing them through the model. The results, indicating whether the image is "Real" or "Fake," are returned to the user in JSON format. 
-The app handles file uploads, ensures only valid image formats are accepted, and can serve the uploaded files back to the user.
+The app handles file uploads, ensures only valid image formats are accepted, and can serve the uploaded files back to the user. [Deepfake Detection Application](https://dolphin-app-3umwi.ondigitalocean.app/)
 
 ![image](https://github.com/olivemideva/Deepfake-Detector/blob/main/uploads/deployment1.jpg)
 
