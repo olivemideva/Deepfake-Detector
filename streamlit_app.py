@@ -5,7 +5,11 @@ from tensorflow.keras.models import load_model
 from PIL import Image
 
 # Load the trained model
-model = load_model('model/cnn_deepfake_model.keras')
+try:
+    model = load_model('model/cnn_deepfake_model.keras')
+    st.write("Model loaded successfully.")
+except Exception as e:
+    st.write("Error loading model:", str(e))
 
 # Set the image size to match the preprocessing step
 image_size = (64, 64)
@@ -15,11 +19,15 @@ def preprocess_image(image):
     # Convert to numpy array
     img_array = np.array(image)
     
-    # Resize the image
+    # Resize the image to 64x64
     img_resized = cv2.resize(img_array, image_size)
     
     # Normalize pixel values to the range 0-1
     img_normalized = img_resized.astype(np.float32) / 255.0
+    
+    # Ensure image has 3 channels (RGB)
+    if img_normalized.ndim == 2:
+        img_normalized = np.stack([img_normalized] * 3, axis=-1)
     
     # Add a batch dimension
     img_batch = np.expand_dims(img_normalized, axis=0)
@@ -45,6 +53,9 @@ if uploaded_file is not None:
 
     # Make a prediction
     prediction = model.predict(img)
+    
+    # Print raw prediction for debugging
+    st.write("Raw Prediction:", prediction)
 
     # Determine if the image is real or fake
     if prediction[0][1] > 0.5:
