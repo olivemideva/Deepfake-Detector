@@ -36,6 +36,8 @@ def predict_image(img):
 def evaluate_model():
     """Evaluate the model on a test dataset."""
     import os  # Import os locally to avoid global issues
+    from sklearn.preprocessing import LabelBinarizer
+    
     # Load test data
     real_test_path = 'dataset/test/REAL'
     fake_test_path = 'dataset/test/FAKE'
@@ -61,7 +63,10 @@ def evaluate_model():
     X_test = np.array([img for img, _ in df_test['image']], dtype=np.float32)
     y_test = np.array([label for _, label in df_test['image']], dtype=np.float32)
     X_test = X_test / 255.0
-    y_test = tf.keras.utils.to_categorical(y_test, num_classes=2)
+    
+    # Convert labels to one-hot encoding
+    lb = LabelBinarizer()
+    y_test = lb.fit_transform(y_test)
 
     # Predict on the test data
     y_pred = model.predict(X_test)
@@ -87,7 +92,6 @@ def main():
     
     if uploaded_files:
         st.write("Uploaded Images and Predictions:")
-        
         for uploaded_file in uploaded_files:
             img = Image.open(uploaded_file)
             st.image(img, caption="Uploaded Image", use_column_width=True)  # Display original image
