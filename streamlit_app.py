@@ -40,5 +40,5 @@ if uploaded_file is not None:
     # Display the prediction
     st.write(f"Prediction: **{result}**")
 
-    # Display the prediction probability
-    st.write(f"Prediction Confidence: {prediction[0][predicted_label]:.2f}")
+    # Display the raw prediction probabilities
+    st.write(f"Prediction Probabilities: REAL: {prediction[0][0]:.2f}, FAKE: {prediction[0][1]:.2f}")
