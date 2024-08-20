@@ -23,10 +23,8 @@ uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png
 
 if uploaded_file is not None:
     # Display the uploaded image in a smaller, consistent size
-    st.image(uploaded_file, caption="Uploaded Image", use_column_width=True, width=150)
-
-    # Convert the file to an image
     image = Image.open(uploaded_file)
+    st.image(image, caption="Uploaded Image", use_column_width=False, width=200)  # Set width to 200 pixels
 
     # Preprocess the image
     preprocessed_image = preprocess_image(image)
@@ -41,3 +39,6 @@ if uploaded_file is not None:
 
     # Display the prediction
     st.write(f"Prediction: **{result}**")
+
+    # Display the prediction probability
+    st.write(f"Prediction Confidence: {prediction[0][predicted_label]:.2f}")
