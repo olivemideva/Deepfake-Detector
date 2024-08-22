@@ -81,11 +81,11 @@ The app handles file uploads, ensures only valid image formats are accepted, and
 
 
 ## Recommendations
-1. *Implement Verification Protocols: Establish protocols to verify media authenticity before publication. This ensures content accuracy and reduces the risk of spreading fake media.
+1. Implement Verification Protocols: Establish protocols to verify media authenticity before publication. This ensures content accuracy and reduces the risk of spreading fake media.
 
-2. *Strengthen Collaboration: Foster collaboration between content creators and verification teams. This improves media verification accuracy and addresses fake content challenges.
+2. Strengthen Collaboration: Foster collaboration between content creators and verification teams. This improves media verification accuracy and addresses fake content challenges.
 
-3. *Enhance Content Moderation: Integrate the deepfake detection model into content moderation systems. This automatically filters out fake images, ensuring only genuine content is published.
+3. Enhance Content Moderation: Integrate the deepfake detection model into content moderation systems. This automatically filters out fake images, ensuring only genuine content is published.
 
 
 
